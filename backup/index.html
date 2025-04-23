@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Звіт</title>
+<style>
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+margin: 20px;
+background-color: #f8f9fa;
+color: #333;
+display: flex;
+flex-direction: column;
+min-height: calc(100vh - 40px); /* Account for body margin */
+}
+
+.instructional-text {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 10px;
+    }
+    .instructional-text b {
+        font-weight: bold;
+    }
+
+    .variant {
+        font-size: 1.4em;
+        font-weight: bold;
+        color: #0000FF; /* Blue */
+        margin-bottom: 10px;
+    }
+
+    .assignment-description, .note {
+        font-size: 1em;
+        margin-bottom: 5px;
+        margin-left: 20px; /* Indentation for list items */
+    }
+    .note {
+         margin-top: 15px;
+         margin-bottom: 15px;
+         margin-left: 0; /* No indentation for the note itself */
+    }
+     .note span {
+        margin-left: 20px; /* Indent the actual note text */
+     }
+
+
+    .report-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .report-header .title {
+        font-size: 2.5em;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .report-header .discipline {
+        font-size: 1.1em;
+        text-transform: uppercase;
+        margin-bottom: 25px;
+    }
+
+    .student-info-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center; /* Align items vertically */
+        margin-bottom: 30px;
+        padding: 0 5%; /* Add some padding */
+        position: relative; /* Needed for absolute positioning of photo */
+    }
+
+    .student-details {
+        font-size: 1em;
+        flex-grow: 1; /* Allow details to take up space */
+        margin-right: 20px; /* Space before photo */
+    }
+     .student-details span {
+         text-decoration: underline;
+         text-decoration-style: solid;
+         text-underline-offset: 3px; /* Adjust space between text and underline */
+         padding: 0 10px; /* Add space around the text to be underlined */
+     }
+
+
+    .student-photo-placeholder {
+        width: 130px;
+        height: 130px; /* Typical photo aspect ratio */
+        border: 1px solid #ccc;
+        overflow: hidden;
+        border-radius: 20%; /* Oval shape */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 0.8em;
+        color: #777;
+        background-color: #fff;
+    }
+
+    .main-content-body {
+        display: flex;
+        flex-grow: 1; /* Make it take remaining vertical space */
+        border: 1px solid #ddd; /* Add border around the whole body */
+        background-color: #fff;
+    }
+
+    #sidebar {
+        max-width: 220px; /* Slightly wider for two-line text */
+        width: 100%;
+        background-color: #f1f1f1; /* Lighter gray for sidebar */
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #ddd;
+    }
+
+    #sidebar button.nav-button {
+        background-color: #fff;
+        color: #333;
+        border: 1px solid #ccc;
+        padding: 12px 15px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        text-align: center; /* Center text */
+        width: 100%;
+        border-radius: 20px; /* Rounded pill shape */
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        font-size: 0.9em;
+        line-height: 1.3; /* Adjust line height for two lines */
+        white-space: pre-wrap; /* Allow wrapping */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    #sidebar button.nav-button:hover {
+        background-color: #e9e9e9;
+        border-color: #bbb;
+    }
+    #sidebar button.nav-button.active {
+        background-color: #d5d5d5; /* Darker gray for active */
+        border-color: #aaa;
+        font-weight: 600; /* Slightly bolder active button */
+    }
+    #sidebar button.conclusions {
+         text-transform: uppercase;
+    }
+
+    #content {
+        flex-grow: 1;
+        padding: 30px; /* More padding in content */
+        overflow-y: auto; /* Scroll if content exceeds height */
+        position: relative; /* For placeholder positioning */
+        border: 1px solid black; /* Black border as described */
+        margin: 15px; /* Add margin to visually separate */
+        min-height: 400px; /* Ensure minimum height */
+    }
+     .content-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.2em;
+        color: #aaa;
+        font-weight: 600; /* Semi-bold as described */
+        text-align: center;
+        display: none; /* Hidden by default */
+     }
+
+    .content-section {
+        display: none; /* Hide all sections by default */
+    }
+
+    .content-section.active {
+        display: block; /* Show the active section */
+    }
+     .content-section.active ~ .content-placeholder {
+        display: none; /* Hide placeholder when a section is active */
+     }
+     /* Show placeholder only if NO section is active (initial state) */
+    #content:not(:has(.content-section.active)) .content-placeholder {
+         display: block;
+     }
+
+
+    h3 {
+        color: #333;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 8px;
+        margin-top: 0; /* Remove default margin */
+        margin-bottom: 20px;
+    }
+    h4 { /* Added style for h4 */
+        color: #444;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    pre { /* Added style for pre */
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+        white-space: pre-wrap; /* Ensure wrapping */
+        word-wrap: break-word; /* Break long lines */
+    }
+
+    ul {
+        list-style-type: disc;
+        margin-left: 20px;
+        padding-left: 10px;
+    }
+    ol {
+         margin-left: 20px;
+         padding-left: 10px;
+    }
+     li {
+        margin-bottom: 8px;
+     }
+
+    code {
+        background-color: #e9e9e9;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+    pre code { /* Style code inside pre differently if needed */
+         background-color: transparent;
+         padding: 0;
+         border-radius: 0;
+    }
+
+
+    /* Responsive adjustments if needed */
+    @media (max-width: 768px) {
+        body {
+            flex-direction: column;
+        }
+        .main-content-body {
+            flex-direction: column;
+        }
+        #sidebar {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid #ddd;
+            flex-direction: row; /* Horizontal buttons on small screens */
+            flex-wrap: wrap; /* Allow wrapping */
+            justify-content: center;
+        }
+         #sidebar button.nav-button {
+             width: auto; /* Adjust width */
+             margin: 5px;
+         }
+        #content {
+            margin: 10px 0 0 0; /* Adjust margin */
+        }
+        .student-info-area {
+            flex-direction: column;
+            align-items: flex-start; /* Align left */
+            position: static; /* Reset position */
+        }
+        .student-photo-placeholder {
+            position: static; /* Reset position */
+            transform: none; /* Reset transform */
+            margin-top: 15px;
+            align-self: center; /* Center photo on small screens */
+        }
+    }
+
+</style>
+
+</head>
+<body>
+
+<div class="report-header">
+    <div class="title">ЗВІТ</div>
+    <div class="discipline">З ДИСЦИПЛІНИ «WEB-ОРІЄНТОВАНІ ТЕХНОЛОГІЇ. ОСНОВИ FRONTEND та BACKEND РОЗРОБОК»</div>
+</div>
+
+<div class="student-info-area">
+    <div class="student-details">
+        Студент гр. <span class="placeholder-underline">ІП-22</span> <span class="placeholder-underline">Хромишин Роман Валерійович</span>
+    </div>
+    <div class="student-photo-placeholder">
+        <img src="images/avatar.png" alt="Фото студента" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 4px; margin: 20px auto; display: block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    </div>
+</div>
+
+<div class="main-content-body">
+    <div id="sidebar">
+        <!-- New navigation buttons based on the description -->
+        <button class="nav-button active" data-target="tema-repo">ТЕМА проєкту
+Посилання на репозиторії</button>
+<button class="nav-button" data-target="stack-logic">СТЕК ТЕХНОЛОГІЙ
+Опис Бізнес логіки</button>
+<button class="nav-button" data-target="requirements">Функціональні та не-
+функціональні вимоги</button>
+<button class="nav-button" data-target="screenshot">СКРІН головної
+сторінки</button>
+<button class="nav-button" data-target="frontend">Frontend частина</button>
+<button class="nav-button" data-target="backend">Backend частина</button> <!-- Assuming backend exists -->
+<button class="nav-button" data-target="database">База даних</button> <!-- Assuming database exists -->
+<button class="nav-button" data-target="deploy">Розгортання</button>
+<button class="nav-button conclusions" data-target="conclusions">ВИСНОВКИ</button>
+</div>
+
+<div id="content">
+        <!-- Content sections corresponding to the new navigation -->
+        <div id="tema-repo" class="content-section active">
+            <h3>ТЕМА проєкту та Посилання на репозиторії</h3>
+             <p>
+                <b>Тема:</b> Веб-додаток "Movies Library" (Бібліотека фільмів).
+            </p>
+            <p>
+                <b>Опис:</b> Додаток дозволяє користувачам переглядати список фільмів, шукати їх, переглядати детальну інформацію,
+                додавати фільми до списку улюблених, отримувати рекомендації та (для адміністраторів)
+                керувати списком фільмів та жанрів. Додаток використовує клієнт-серверну архітектуру.
+            </p>
+             <p>
+                <b>Посилання на репозиторій:</b> <a href="https://github.com/Roman13456/course_work.git">https://github.com/Roman13456/course_work.git</a> 
+            </p>
+             <!-- <p>
+                <b>Посилання на живу версію (якщо є):</b> [Вставте посилання на розгорнутий додаток тут]
+            </p> -->
+        </div>
+
+        <div id="stack-logic" class="content-section">
+            <h3>СТЕК ТЕХНОЛОГІЙ та Опис Бізнес логіки</h3>
+            <p><b>Стек технологій:</b></p>
+             <ul>
+                <li><strong>Frontend:</strong> React, Redux (з Redux Toolkit), Axios, CSS (модулі або окремі файли). React Router (для навігації), Formik/Yup (для форм).</li>
+                <li><strong>Середовище:</strong> Node.js, npm.</li>
+                <li><strong>Backend:</strong> Node.js</li>
+                <li><strong>База даних:</strong> MySql</li>
+            </ul>
+            <p><b>Бізнес логіка:</b></p>
+            <ul>
+                <li>Користувачі можуть реєструватися, авторизуватися та скидувати пароль.</li>
+                <li>Користувачі можуть переглядати інформацію про фільми, шукати/сортувати їх.</li>
+                <li>Авторизовані Користувачі можуть додавати/видаляти фільми зі списку "Улюблене".</li>
+                <li>Авторизовані користувачі можуть ставити рейтинг фільмам.</li>
+                <li>Система надаває персоналізовані рекомендації на основі вподобань/рейтингів авторизованих користувачів.</li>
+                <li>Адміністратори мають доступ до панелі керування для додавання/редагування/видалення фільмів.</li>
+                <li>API використовується для взаємодії між фронтендом та бекендом (отримання даних, аутентифікація, збереження змін).</li>
+             </ul>
+
+        </div>
+
+        <div id="requirements" class="content-section">
+            <h3>Функціональні та нефункціональні вимоги</h3>
+             <p><b>Функціональні вимоги:</b></p>
+             <ul>
+                <li>Реєстрація та автентифікація користувачів (включаючи підтвердження email, скидання пароля).</li>
+                <li>Перегляд детальної інформації про фільм (опис, актори, рейтинг, трейлер тощо).</li>
+                <li>Перегляд списку фільмів з пагінацією/прокруткою.</li>
+                <li>Пошук і сортування фільмів.</li>
+                <li>Фільтрація фільмів за жанром.</li>
+                <li>Можливість додати/видалити фільм до/з особистого списку "Улюблене".</li>
+                <li>Можливість виставити/змінити власний рейтинг фільму (наприклад, від 1 до 10 зірок).</li>
+                <li>Відображення персональних рекомендацій фільмів.</li>
+                <li>(Для Адміністратора) Можливість додавати нові фільми (з назвою, описом, постером, жанрами тощо).</li>
+                <li>(Для Адміністратора) Можливість редагувати існуючі фільми.</li>
+                <li>(Для Адміністратора) Можливість видаляти фільми.</li>
+                <li>Зручна навігація по сторінках веб-додатку.</li>
+             </ul>
+             <p><b>Нефункціональні вимоги:</b></p>
+             <ul>
+                 <li>Підтримка адаптивного інтерфейсу для коректної роботи на різних пристроях (десктопи, планшети, смартфони).</li>
+                 <li>Використання надійних методів захисту даних користувачів, включаючи шифрування паролів та токенів.</li>
+                 <li>Підтримка підтвердження реєстрації через сторонні сервіси, такі як SendGrid (якщо використовується).</li>
+                 <li>Програмне забезпечення має бути стійким до збоїв та помилок під час роботи з базою даних (якщо використовується).</li>
+                 <li>Наявність механізмів для обробки помилок з поверненням зрозумілих повідомлень користувачам.</li>
+                 <li>Захист від несанкціонованого доступу до адміністративної панелі.</li>
+             </ul>
+        </div>
+
+        <div id="screenshot" class="content-section">
+            <h3 style="text-align: center;">СКРІН головної сторінки</h3>
+            <img src="images/landing.png" alt="Скріншот головної сторінки" style="max-width: 100%; border: 1px solid #ccc; margin: auto; display: block;">
+        </div>
+
+         <div id="frontend" class="content-section">
+            <h3>Frontend частина</h3>
+             <p>Фронтенд розроблено з використанням React та Redux (Redux Toolkit) для управління станом.</p>
+             <p><b>Основні компоненти:</b></p>
+             <ul>
+                 <li><code>App.js</code>: Кореневий компонент, налаштування маршрутизації (ймовірно з React Router).</li>
+                 <li><code>src/components/</code>: Містить UI компоненти, згруповані за призначенням:
+                    <ul>
+                         <li><code>Navigation</code>: Верхня навігаційна панель, пошук.</li>
+                         <li><code>NavBurger</code>: Компонент бургер-меню для навігації (можливо, мобільної).</li>
+                         <li><code>MoviesList</code>: Відображення списку фільмів.</li>
+                         <li><code>MoviesListSearch</code>: Компонент для пошуку фільмів (можливо, інтегрований в <code>MoviesList</code> або <code>Navigation</code>).</li>
+                         <li><code>MovieItem</code>: Окремий елемент списку фільмів.</li>
+                         <li><code>MovieDetails</code>: Сторінка з детальною інформацією про фільм.</li>
+                            <ul>
+                                <li><code>ChangeFavorites</code>: Компонент для додавання/видалення з улюблених на сторінці деталей.</li>
+                            </ul>
+                         <li><code>UserFavorites</code>: Список улюблених фільмів користувача.</li>
+                         <li><code>UserReccomendations</code>: Компонент для відображення рекомендованих фільмів.</li>
+                         <li><code>AdminPanel</code>: Інтерфейс для керування фільмами/жанрами (для адмінів).</li>
+                         <li><code>GenreForm</code>: Форма для додавання/редагування жанрів.</li>
+                         <li><code>MovieForm</code>: Форма для додавання/редагування фільмів.</li>
+                         <li><code>GenresListPicker</code>: Компонент для вибору жанрів (ймовірно, у формах).</li>
+                         <li><code>Registerform</code>: Компоненти, пов'язані з реєстрацією та авторизацією:
+                             <ul>
+                                 <li><code>LoginForm</code>: Форма входу.</li>
+                                 <li><code>SignupForm</code>: Форма реєстрації.</li>
+                                 <li><code>SignupConfirmation</code>: Етап підтвердження реєстрації.</li>
+                                 <li><code>EmailConfirmation</code>: Етап підтвердження email (можливо, включає <code>ResetPassword</code>).</li>
+                                 <li><code>SignedUp</code>: Компонент для залогіненого користувача (можливо, включає <code>ChangeNickname</code>).</li>
+                             </ul>
+                         </li>
+                         <li><code>formsUI/</code>: Набір перевикористовуваних компонентів для побудови форм:
+                             <ul>
+                                 <li><code>TextfieldWrapper</code>, <code>TextareaWrapper</code>, <code>SelectFieldWrapper</code>, <code>CheckboxWrapper</code>: Обгортки для полів вводу.</li>
+                                 <li><code>ImageInput</code>: Компонент для завантаження зображень.</li>
+                                 <li><code>delButton</code>: Кнопка видалення (можливо, у формах).</li>
+                             </ul>
+                         </li>
+                          <li><code>userRatingStars</code>: Компонент для відображення/встановлення рейтингу зірочками.</li>
+                          <li><code>PopUp</code>: Компонент для спливаючих повідомлень/вікон.</li>
+                          <li><code>SliderPagination</code>: Компонент пагінації для списків/слайдерів.</li>
+                          <li><code>Spinner</code>: Індикатор завантаження.</li>
+                          <li><code>NotFound</code>: Компонент для сторінки 404.</li>
+                          <li><code>shared/</code>: Ймовірно, містить загальні елементи (UI, контекст).</li>
+                     </ul>
+                 </li>
+                 <li><code>src/redux/</code>: Управління станом:
+                     <ul>
+                         <li><code>store.js</code>: Головний файл конфігурації Redux store, що об'єднує всі reducers (slices).</li>
+                         <li><code>slices/</code>: Директорія містить "зрізи" (slices) стану Redux Toolkit:
+                             <ul>
+                                 <li><code>favoritesSlice.js</code>: Керує станом списку улюблених фільмів користувача (додавання, видалення, завантаження).</li>
+                                 <li><code>userSlice.js</code>: Керує станом аутентифікації користувача (статус входу, токен, інформація про користувача).</li>
+                                 <li><code>userRatingsSlice.js</code>: Керує станом рейтингів, виставлених користувачем.</li>
+                                 <li><code>moviesSlice.js</code>: Керує станом списку фільмів (завантаження, пагінація, фільтри, результати пошуку).</li>
+                                 <li><code>recommendationsSlice.js</code>: Керує станом рекомендованих фільмів.</li>
+                             </ul>
+                         </li>
+                          <li><code>thunks/</code>: Директорія містить асинхронні дії (thunks), які взаємодіють з API та діспатчать синхронні дії зі slices:
+                             <ul>
+                                  <li><code>moviesThunks.js</code>: Асинхронні запити для отримання списку фільмів, деталей фільму тощо.</li>
+                                  <li><code>userRatingsThunks.js</code>: Асинхронні запити для відправки/отримання рейтингів користувача.</li>
+                                  <li><code>userThunks.js</code>: Асинхронні запити для реєстрації, логіну, виходу, оновлення профілю користувача.</li>
+                             </ul>
+                         </li>
+                     </ul>
+                 </li>
+                 <li><code>src/api/</code>: Містить модулі для інкапсуляції логіки взаємодії з бекенд API:
+                     <ul>
+                         <li><code>axiosClient.js</code>: Налаштування екземпляру Axios (базовий URL, interceptors для додавання токенів авторизації або обробки помилок).</li>
+                         <li><code>moviesApi.js</code>: Функції для запитів, пов'язаних з фільмами (отримання списку, деталей, пошук).</li>
+                         <li><code>userApi.js</code>: Функції для запитів, пов'язаних з користувачем (реєстрація, логін, отримання профілю).</li>
+                     </ul>
+                 </li>
+             </ul>
+              <p><b>Стилізація:</b> Використовуються CSS файли, що імпортуються безпосередньо в компоненти, або глобальні стилі в `index.css`.</p>
+         </div>
+
+         <div id="backend" class="content-section">
+             <h3>Backend частина</h3>
+             <p>Бекенд розроблено на Node.js з використанням фреймворку Express.js.</p>
+             <p><b>Основні технології та компоненти:</b></p>
+             <ul>
+                 <li><b>Мова/Платформа:</b> Node.js</li>
+                 <li><b>Фреймворк:</b> Express.js</li>
+                 <li><b>База даних:</b> MySQL (з використанням драйвера `mysql2`).</li>
+                 <li><b>Аутентифікація:</b>
+                    <ul>
+                        <li>JWT (JSON Web Tokens) для керування сесіями (бібліотека `jsonwebtoken`).</li>
+                        <li>Refresh tokens (зберігаються в базі даних та HttpOnly cookies) для довготривалих сесій.</li>
+                        <li>Хешування паролів за допомогою `bcryptjs`.</li>
+                        <li>Підтвердження реєстрації та скидання пароля через email (використовується `SendGrid`).</li>
+                    </ul>
+                 </li>
+                 <li><b>API Маршрути (Endpoints):</b> Набір маршрутів під префіксом `/api/` забезпечує:
+                     <ul>
+                         <li>Повну автентифікацію користувачів (реєстрація, вхід, вихід, підтвердження email, скидання пароля, оновлення токена, отримання профілю).</li>
+                         <li>CRUD операції для фільмів (створення, читання, оновлення, видалення - з перевіркою прав адміністратора).</li>
+                         <li>Отримання списків фільмів з пагінацією, сортуванням та фільтрацією за жанром.</li>
+                         <li>Пошук фільмів (інтегровано з Elasticsearch).</li>
+                         <li>Керування списком улюблених фільмів користувача.</li>
+                         <li>Додавання/отримання рейтингів фільмів.</li>
+                         <li>Запис історії переглядів фільмів користувачем.</li>
+                         <li>Отримання рекомендацій (персоналізованих та за жанрами).</li>
+                         <li>Отримання списку всіх жанрів.</li>
+                         <li><b>Приклади ключових ендпоінтів:</b>
+                            <ul>
+                                 <li><code>POST /api/register</code>: Реєстрація нового користувача.</li>
+                                 <li><code>POST /api/login</code>: Автентифікація користувача та отримання токенів.</li>
+                                 <li><code>GET /api/movies</code>: Отримання списку фільмів (з параметрами для пагінації, сортування, фільтрації).</li>
+                                 <li><code>GET /api/movies/:id</code>: Отримання детальної інформації про конкретний фільм.</li>
+                                 <li><code>GET /api/movies/search</code>: Пошук фільмів за ключовими словами (використовує Elasticsearch).</li>
+                                 <li><code>GET /api/favorites</code> (потребує аутентифікації): Отримання списку улюблених фільмів користувача.</li>
+                                 <li><code>POST /api/favorites</code> (потребує аутентифікації): Додавання фільму до улюблених.</li>
+                                 <li><code>DELETE /api/favorites/:movieId</code> (потребує аутентифікації): Видалення фільму з улюблених.</li>
+                                 <li><code>GET /api/recommendations/personalized</code> (потребує аутентифікації): Отримання персоналізованих рекомендацій.</li>
+                                 <li><code>POST /api/movies</code> (тільки для адміністраторів): Створення нового фільму.</li>
+                                 <li><code>PUT /api/movies/:id</code> (тільки для адміністраторів): Оновлення існуючого фільму.</li>
+                                 <li><code>DELETE /api/movies/:id</code> (тільки для адміністраторів): Видалення фільму.</li>
+                            </ul>
+                         </li>
+                     </ul>
+                 </li>
+                 <li><b>Обробка зображень:</b> Використовується Cloudinary для завантаження та зберігання зображень (постерів фільмів)</li>
+                 <li><b>Пошук:</b> Інтеграція з Elasticsearch для ефективного повнотекстового пошуку по фільмам.</li>
+                 <li><b>Структура папок:</b> Код організовано в директорії: `config` (налаштування БД), `routes` (обробники маршрутів), та основний файл `app.js`.</li>
+             </ul>
+         </div>
+
+         <div id="database" class="content-section">
+            <h3>База даних</h3>
+             <p>
+                Для зберігання даних додатку використовується реляційна система управління базами даних (СУБД) <b>MySQL</b>.
+             </p>
+             </p>
+             <h3>Структура бази даних</h3>
+             <p>
+                Наступна ER-діаграма ілюструє взаємозв'язки між основними сутностями (таблицями) бази даних "Movies Library":
+             </p>
+             <img src="images/er.png" alt="ER-діаграма бази даних Movies Library" style="display: block; margin: 15px auto; max-width: 90%; border: 1px solid #ccc;">
+             <p>
+                <b>Основні таблиці (сутності) та їх призначення:</b>
+             </p>
+             <ul>
+                 <li><code>user</code>: Зберігає інформацію про зареєстрованих та підтверджених користувачів (ID, email, хеш пароля, статус адміністратора, токени для скидання пароля).</li>
+                 <li><code>newuser</code>: Тимчасово зберігає дані нових користувачів до підтвердження їхньої електронної пошти (email, хеш пароля, токен підтвердження, час дії токена).</li>
+                 <li><code>refresh_tokens</code>: Зберігає refresh-токени для підтримки сесій користувачів (ID користувача, сам токен, час дії токена).</li>
+                 <li><code>movie</code>: Містить основну інформацію про фільми (ID, назва, опис, рядок з жанрами, посилання на зображення, дата виходу, середній рейтинг, кількість голосів).</li>
+                 <li><code>genre</code>: Довідник жанрів (ID, назва жанру).</li>
+                 <li><code>movie_genre</code>: Зв'язуюча таблиця для відношення "багато-до-багатьох" між фільмами та жанрами (ID фільму, ID жанру).</li>
+                 <li><code>user_ratings</code>: Зберігає оцінки, виставлені користувачами конкретним фільмам (ID користувача, ID фільму, оцінка).</li>
+                 <li><code>favorite_movies</code>: Зберігає інформацію про фільми, додані користувачами до списку "Улюблене" (ID користувача, ID фільму, дата додавання).</li>
+                 <li><code>user_history</code>: Записує історію переглядів фільмів користувачами (ID користувача, ID фільму, дата перегляду).</li>
+             </ul>
+             <p>
+                Взаємодія з базою даних на бекенді здійснюється за допомогою драйвера <code>mysql2</code> для Node.js без використання ORM.
+             </p>
+             <h3>Середовище управління базою даних (phpMyAdmin)</h3>
+             <p>
+                 Для ефективного управління та взаємодії з базою даних MySQL у 
+                 проекті "Movies Library" використовується популярний веб-інструмент 
+                 <b>phpMyAdmin</b>. Він надає зручний графічний інтерфейс для
+                  виконання широкого спектру адміністративних завдань.
+             </p>
+             <p>
+                 За допомогою phpMyAdmin можна легко переглядати структуру таблиць, 
+                 виконувати SQL-запити, імпортувати/експортувати дані, 
+                 керувати користувачами та їхніми правами, а також візуально проєктувати 
+                 схему бази даних. Це значно спрощує процес розробки та підтримки бази 
+                 даних.
+             </p>
+             <p>
+                 Наступні скріншоти демонструють інтерфейс phpMyAdmin, зокрема вигляд 
+                 дизайнера схеми бази даних та перелік таблиць з їхньою структурою.
+             </p>
+             <img src="images/phpmyadmin.png" alt="phpMyAdmin - Дизайнер схеми БД" style="display: block; margin: 15px auto; max-width: 90%; border: 1px solid #ccc;">
+             <img src="images/db_entities.png" alt="phpMyAdmin - Структура таблиць" style="display: block; margin: 15px auto; max-width: 90%; border: 1px solid #ccc;">
+        </div>
+
+        <div id="deploy" class="content-section">
+            <h3>Розгортання Застосунку (Application Deployment)</h3>
+            <p>Ці інструкції описують кроки для локального розгортання застосунку "Movies Library", базуючись на наданих скріншотах.</p>
+
+            <h4>1. Передумови (Prerequisites):</h4>
+            <ul>
+                <li>Встановлений Git.</li>
+                <li>Встановлений Node.js (версія >= 18.17, як зазначено у попередженні на Рис. 5.2) та npm.</li>
+                <li>Встановлений Python (версія, що підтримує <code>venv</code>, наприклад, Python 3).</li>
+                <li>Встановлений та запущений MySQL сервер (доступний на localhost).</li>
+                <li>Завантажений та розпакований Elasticsearch (Рис. 5.3, 5.4).</li>
+                <li>Доступ до Інтернету для завантаження залежностей та клонування репозиторіїв.</li>
+            </ul>
+
+            <h4>2. Клонування Репозиторіїв (Cloning Repositories) (Рис. 5.1):</h4>
+            <ol>
+                <li>Відкрийте термінал (наприклад, Git Bash/MINGW64) у бажаній батьківській директорії (наприклад, <code>f:/testfolder</code>).</li>
+                <li>Клонуйте репозиторій клієнта (<code>movies_library</code>):
+                    <pre><code>git clone https://github.com/Roman13456/movies_library.git</code></pre>
+                </li>
+                <li>Клонуйте репозиторій сервера (<code>nodejs</code>):
+                    <pre><code>git clone https://github.com/Roman13456/nodejs.git</code></pre>
+                </li>
+                <li><em>(Примітка: Переконайтесь, що репозиторій <code>course_work/mysql/python_script</code>, показаний на Рис. 5.6, знаходиться всередині одного з цих репозиторіїв або клонований окремо).</em></li>
+            </ol>
+
+            <h4>3. Налаштування Бази Даних MySQL та Заповнення Даними (Рис. 5.6):</h4>
+            <ol>
+                <li>Переконайтесь, що ваш MySQL сервер запущено.</li>
+                <li>Створіть необхідну базу даних та користувача в MySQL (якщо це не робить скрипт).</li>
+                <li>Перейдіть в директорію з Python скриптом (шлях з Рис. 5.6: <code>f:/testfolder/course_work/mysql/python_script</code>).
+                    <pre><code>cd /шлях/до/course_work/mysql/python_script</code></pre>
+                </li>
+                <li>Створіть та активуйте віртуальне середовище:
+                    <pre><code>python -m venv venv
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Windows (MINGW64/Git Bash)
+
+source venv/Scripts/activate
+
+Windows (CMD/PowerShell)
+venv\Scripts\activate</code></pre>
+</li>
+                <li>Встановіть Python залежності:
+                    <pre><code>pip install -r requirements.txt</code></pre>
+                </li>
+                <li>Налаштуйте підключення до БД (ймовірно, через змінні середовища або конфігураційний файл, який використовує <code>main.py</code>).</li>
+                <li>Запустіть скрипт для створення таблиць та заповнення даними з TMDB:
+                    <pre><code>python -u main.py</code></pre>
+                </li>
+                <li>Деактивуйте віртуальне середовище після завершення:
+                    <pre><code>deactivate</code></pre>
+                </li>
+            </ol>
+
+            <h4>4. Налаштування Elasticsearch (Рис. 5.3, 5.4, 5.5):</h4>
+             <ol>
+                <li>Перейдіть в директорію, куди ви розпакували Elasticsearch (наприклад, <code>f:/testfolder/elasticsearch-8.15.3</code> з Рис. 5.4).</li>
+                <li>Запустіть Elasticsearch (Рис. 5.5):
+                    <pre><code># Windows (з папки Elasticsearch)
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+bin\elasticsearch.bat</code></pre>
+</li>
+<li>Переконайтесь, що Elasticsearch успішно стартував (зазвичай доступний на <code>http://localhost:9200</code>).</li>
+</ol>
+
+<h4>5. Налаштування та Запуск Backend Сервера (Рис. 5.2, 5.7, 5.8):</h4>
+             <ol>
+                <li>Перейдіть в директорію сервера (<code>nodejs</code>, шлях з Рис. 5.7: <code>f:/testfolder/course_work/nodejs</code>):
+                    <pre><code>cd /шлях/до/course_work/nodejs</code></pre>
+                </li>
+                <li>Встановіть залежності (Рис. 5.2):
+                    <pre><code>npm install</code></pre>
+                </li>
+                <li>Налаштуйте змінні середовища (створіть файл <code>.env</code>):
+                    <ul>
+                        <li><code>DB_HOST</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_NAME</code></li>
+                        <li><code>JWT_SECRET</code>, <code>JWT_REFRESH_SECRET</code></li>
+                        <li><code>SENDGRID_API_KEY</code></li>
+                        <li><code>CLOUDINARY_URL</code> (або окремі <code>CLOUD_NAME</code>, <code>API_KEY</code>, <code>API_SECRET</code>)</li>
+                        <li><code>ELASTICSEARCH_NODE=http://localhost:9200</code></li>
+                        <li>Інші необхідні змінні...</li>
+                    </ul>
+                </li>
+                <li>Запустіть скрипт для індексації даних з MySQL в Elasticsearch (Рис. 5.7):
+                    <pre><code>node export_movies.js</code></pre>
+                </li>
+                <li>Запустіть Backend сервер (Рис. 5.8):
+                    <pre><code>node app.js</code></pre>
+                    <em>(Сервер за замовчуванням працює на порту 3001)</em>
+                </li>
+             </ol>
+
+            <h4>6. Налаштування та Запуск Frontend Клієнта (Рис. 5.2, 5.8):</h4>
+             <ol>
+                <li>Перейдіть в директорію клієнта (<code>movies_library</code>, шлях з Рис. 5.8: <code>f:/testfolder/course_work/movies_library</code>):
+                    <pre><code>cd /шлях/до/course_work/movies_library</code></pre>
+                </li>
+                <li>Встановіть залежності (Рис. 5.2):
+                    <pre><code>npm install</code></pre>
+                </li>
+                <li>Налаштуйте змінні середовища (створіть файл <code>.env</code>):
+                    <ul>
+                        <li><code>REACT_APP_API_URL=http://localhost:3001/api</code> (або інший URL вашого API)</li>
+                    </ul>
+                </li>
+                <li>Запустіть Frontend клієнт в режимі розробки (Рис. 5.8):
+                    <pre><code>npm start</code></pre>
+                    <em>(Клієнт за замовчуванням запуститься на <code>http://localhost:3000</code> і автоматично відкриє сторінку <code>/movies</code> у браузері)</em>
+                </li>
+             </ol>
+
+            <h4>7. Перевірка:</h4>
+             <ul>
+                <li>Переконайтесь, що MySQL, Elasticsearch, Backend та Frontend успішно запустились без помилок у відповідних консолях.</li>
+                <li>Відкрийте <code>http://localhost:3000/movies</code> у вашому браузері.</li>
+                <li>Перевірте основні функції застосунку.</li>
+             </ul>
+        </div>
+
+        <div id="conclusions" class="content-section">
+            <h3>ВИСНОВКИ</h3>
+            <p>В ході виконання цього індивідуального проекту було розроблено веб-додаток "Movies Library".</p>
+            <ul>
+                <li><b>Реалізовано ключовий функціонал:</b>
+                    <ul>
+                        <li>Реєстрація та авторизація користувачів (з підтвердженням email та скиданням пароля).</li>
+                        <li>Пошук та сортування фільмів за різними критеріями (ключові слова, рейтинг, жанр).</li>
+                        <li>Перегляд персоналізованих рекомендацій на основі історії, оцінок та списку улюбленого.</li>
+                        <li>Система оцінювання фільмів користувачами.</li>
+                        <li>Керування особистим списком "Улюблене".</li>
+                    </ul>
+                </li>
+                <li>Розроблено <b>адміністративну панель</b> для керування контентом (додавання, редагування, видалення фільмів).</li>
+                <li>Застосовано сучасний <b>стек технологій:</b> React і Redux для фронтенду, Node.js/Express для бекенду, MySQL для бази даних, Elasticsearch для пошуку.</li>
+                 <li>Враховано <b>нефункціональні вимоги:</b> адаптивний інтерфейс, захист даних користувачів, стійкість до помилок.</li>
+                <li>Набуто практичних навичок роботи з асинхронними запитами (Axios, Redux Thunk), маршрутизацією (React Router), створенням компонентів, управлінням станом, взаємодією з REST API та базами даних.</li>
+             </ul>
+        </div>
+         <!-- Placeholder text, shown only when no section is active -->
+         <div class="content-placeholder">
+             Місце виведення інформації
+         </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const buttons = document.querySelectorAll('.nav-button');
+        const contentSections = document.querySelectorAll('.content-section');
+        const contentArea = document.getElementById('content');
+        const placeholder = contentArea.querySelector('.content-placeholder');
+
+        // Function to switch tabs
+        function switchTab(targetId) {
+            // Hide all sections
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Deactivate all buttons
+             buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show the target section
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                placeholder.style.display = 'none'; // Hide placeholder
+            } else {
+                placeholder.style.display = 'block'; // Show placeholder if target not found
+            }
+
+             // Activate the clicked button
+            const activeButton = document.querySelector(`.nav-button[data-target="${targetId}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+
+        // Add click event listeners to buttons
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                switchTab(targetId);
+            });
+        });
+
+        // Activate the first button and section by default on load
+        const firstButton = document.querySelector('.nav-button');
+         if (firstButton) {
+             const firstTargetId = firstButton.getAttribute('data-target');
+             switchTab(firstTargetId);
+         } else {
+             // If no buttons, show placeholder
+             placeholder.style.display = 'block';
+         }
+    });
+</script>
+</body>
+</html>
